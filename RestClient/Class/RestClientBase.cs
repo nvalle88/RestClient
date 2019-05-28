@@ -139,7 +139,7 @@ namespace RestClient.Class
            int? MINUTES_TO_REFRESH_TOKEN=null)
         {
             
-
+            //Comentario
             if (refreshToken)
             {
                 if (urlLogin == null)
