@@ -397,6 +397,8 @@ namespace RestClient.Class
             }
         }
 
+
+
         public HttpResponseMessage Get(string requestUri, string parameters)
         {
             try
