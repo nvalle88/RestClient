@@ -306,8 +306,72 @@ namespace RestClient.Class
         }
         #endregion
 
+
+        #region Sends
+
+        #region Async
+
+        public async Task<T> SendAsync<T>(HttpRequestMessage httpRequestMessage)
+        {
+            try
+            {
+                await RefreshTokenAsync();
+                return await InterpreterAsync<T>(await _httpClient.SendAsync(httpRequestMessage));
+            }
+            catch (System.Exception ex)
+            {
+                throw new ExceptionJson(ex.Message, ex);
+            }
+        }
+
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage)
+        {
+            try
+            {
+                await RefreshTokenAsync();
+                return await _httpClient.SendAsync(httpRequestMessage);
+            }
+            catch (System.Exception ex)
+            {
+                throw new ExceptionJson(ex.Message, ex);
+            }
+        }
+        #endregion
+
+        #region Sync
+
+        public HttpResponseMessage Send(HttpRequestMessage httpRequestMessage)
+        {
+            try
+            {
+                RefreshToken();
+                return  _httpClient.SendAsync(httpRequestMessage).Result;
+            }
+            catch (System.Exception ex)
+            {
+                throw new ExceptionJson(ex.Message, ex);
+            }
+        }
+
+        public T Send<T>(HttpRequestMessage httpRequestMessage)
+        {
+            try
+            {
+                RefreshToken();
+                return Interpreter<T>(_httpClient.SendAsync(httpRequestMessage).Result);
+            }
+            catch (System.Exception ex)
+            {
+                throw new ExceptionJson(ex.Message, ex);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
         #region Gets
-        
+
         #region Async
 
         public async Task<HttpResponseMessage> GetAsync(string requestUri)
@@ -589,7 +653,6 @@ namespace RestClient.Class
                                        CreateStringContent(body, encoding, mediaType)).Result);
         }
         #endregion
-
 
         #endregion
 

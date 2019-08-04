@@ -11,6 +11,7 @@ namespace RestClient.Exception
     public class ExceptionJson : System.Exception
     {
         HttpStatusCode _httpStatusCode;
+
         HttpResponseMessage _httpResponseMessage;
 
         public ExceptionJson(){}
@@ -27,8 +28,11 @@ namespace RestClient.Exception
         }
 
         public ExceptionJson(HttpStatusCode httpStatusCode,string message,HttpResponseMessage httpResponseMessage) { }
+
         public ExceptionJson(string message) : base(message) { }
+
         public ExceptionJson(string message, System.Exception inner) : base(message, inner) { }
+
         protected ExceptionJson(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
