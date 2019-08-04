@@ -31,6 +31,31 @@ namespace RestClient.Class
 
         #endregion
 
+        #region Private
+
+        private StringContent CreateStringContent(object body,Encoding encoding,string mediaType)
+        {
+            return new StringContent(JsonConvert.SerializeObject(body), encoding, _mediaType);
+        }
+
+        private StringContent CreateStringContent()
+        {
+            return new StringContent(string.Empty);
+        }
+
+        private string CreateRequestUri(Uri baseAddress)
+        {
+            return $"{baseAddress}";
+        }
+
+        private string CreateRequestUri(Uri baseAddress,string parameters)
+        {
+            return $"{baseAddress}{parameters}";
+        }
+
+        #endregion
+
+
         #region Constructors
         public Client(Uri baseAddress, long maxResponseContentBufferSize, TimeSpan timeout, Encoding encoding)
         {
@@ -258,6 +283,7 @@ namespace RestClient.Class
 
 
         }
+        
         private async Task<T> InterpreterAsync<T>(HttpResponseMessage httpResponseMessage)
         {
             try
@@ -281,8 +307,7 @@ namespace RestClient.Class
         #endregion
 
         #region Gets
-
-
+        
         #region Async
 
         public async Task<HttpResponseMessage> GetAsync(string requestUri)
@@ -413,217 +438,155 @@ namespace RestClient.Class
         }
 
         #endregion
-
-
-
+        
         #endregion
 
         #region Post
 
         #region Async
 
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, string parameters)
-        {
-            await RefreshTokenAsync();
-            return await _httpClient.PostAsync($"{baseAddress}{parameters}", new StringContent(string.Empty));
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, string parameters, object body)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, _mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}{parameters}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, string parameters, object body,Encoding encoding)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}{parameters}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, string parameters, object body, string mediaType)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}{parameters}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, string parameters, object body, Encoding encoding,string mediaType)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}{parameters}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, object body,Encoding encoding)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, object body, string mediaType)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}", content);
-        }
-
-        public async Task<HttpResponseMessage> PostAsync(Uri baseAddress, object body,Encoding encoding, string mediaType)
-        {
-            await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return await _httpClient.PostAsync($"{baseAddress}", content);
-        }
-
         public async Task<HttpResponseMessage> PostAsync(string requestUri)
         {
             await RefreshTokenAsync();
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", new StringContent(string.Empty));
+            return await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress,requestUri),
+                                               CreateStringContent());
+        }
+
+        public async Task<T> PostAsync<T>(string requestUri)
+        {
+            await RefreshTokenAsync();
+            return await InterpreterAsync<T>(await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                               CreateStringContent()));
         }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, object body)
         {
             await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, _mediaType);
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content);
+            return await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, _encoding, _mediaType));
         }
-        
+
+        public async Task<T> PostAsync<T>(string requestUri, object body)
+        {
+            await RefreshTokenAsync();
+            return await InterpreterAsync<T>( await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, _encoding, _mediaType)));
+        }
+
         public async Task<HttpResponseMessage> PostAsync(string requestUri, object body, Encoding encoding)
         {
             await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content);
+            return await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, encoding, _mediaType));
+        }
+
+        public async Task<T> PostAsync<T>(string requestUri, object body, Encoding encoding)
+        {
+            await RefreshTokenAsync();
+            return await  InterpreterAsync<T>(await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, encoding, _mediaType)));
         }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, object body, string mediaType)
         {
             await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content);
+            return await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, _encoding, mediaType));
+        }
+
+        public async Task<T> PostAsync<T>(string requestUri, object body, string mediaType)
+        {
+            await RefreshTokenAsync();
+            return await InterpreterAsync<T>(await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, _encoding, mediaType)));
         }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, object body, Encoding encoding, string mediaType)
         {
             await RefreshTokenAsync();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content);
+            return await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, encoding, mediaType));
+        }
+
+        public async Task<T> PostAsync<T>(string requestUri, object body, Encoding encoding, string mediaType)
+        {
+            await RefreshTokenAsync();
+            return await InterpreterAsync<T>(await _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                              CreateStringContent(body, encoding, mediaType)));
         }
 
         #endregion
 
         #region Sync
 
-        public HttpResponseMessage Post(Uri baseAddress, string parameters)
-        {
-            RefreshToken();
-            return  _httpClient.PostAsync($"{baseAddress}{parameters}", new StringContent(string.Empty)).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, string parameters, object body)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, _mediaType);
-            return  _httpClient.PostAsync($"{baseAddress}{parameters}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, string parameters, object body, Encoding encoding)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return _httpClient.PostAsync($"{baseAddress}{parameters}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, string parameters, object body, string mediaType)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return _httpClient.PostAsync($"{baseAddress}{parameters}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, string parameters, object body, Encoding encoding, string mediaType)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return _httpClient.PostAsync($"{baseAddress}{parameters}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, object body, Encoding encoding)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return _httpClient.PostAsync($"{baseAddress}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, object body, string mediaType)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return _httpClient.PostAsync($"{baseAddress}", content).Result;
-        }
-
-        public HttpResponseMessage Post(Uri baseAddress, object body, Encoding encoding, string mediaType)
-        {
-            RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return _httpClient.PostAsync($"{baseAddress}", content).Result;
-        }
-
         public HttpResponseMessage Post(string requestUri)
         {
             RefreshToken();
-            return _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", new StringContent(string.Empty)).Result;
+            return _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress,requestUri),
+                                        CreateStringContent()).Result;
+        }
+
+        public T Post<T>(string requestUri)
+        {
+            RefreshToken();
+            return  Interpreter<T>(_httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                        CreateStringContent()).Result);
         }
 
         public HttpResponseMessage Post(string requestUri, object body)
         {
             RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, _mediaType);
-            return _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content).Result;
+            return _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                        CreateStringContent(body,_encoding,_mediaType)).Result;
+        }
+
+        public T Post<T>(string requestUri, object body)
+        {
+            RefreshToken();
+            return  Interpreter<T>(_httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                        CreateStringContent(body, _encoding, _mediaType)).Result);
         }
 
         public HttpResponseMessage Post(string requestUri, object body, Encoding encoding)
         {
             RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, _mediaType);
-            return _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content).Result;
+            return _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, encoding, _mediaType)).Result;
+        }
+
+        public T Post<T>(string requestUri, object body, Encoding encoding)
+        {
+            RefreshToken();
+            return  Interpreter<T>(_httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, encoding, _mediaType)).Result);
         }
 
         public HttpResponseMessage Post(string requestUri, object body, string mediaType)
         {
             RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, _encoding, mediaType);
-            return _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content).Result;
+            return _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, _encoding, mediaType)).Result;
+        }
+
+        public T Post<T>(string requestUri, object body, string mediaType)
+        {
+            RefreshToken();
+            return  Interpreter<T>(_httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, _encoding, mediaType)).Result);
         }
 
         public HttpResponseMessage Post(string requestUri, object body, Encoding encoding, string mediaType)
         {
             RefreshToken();
-            var request = JsonConvert.SerializeObject(body);
-            var content = new StringContent(request, encoding, mediaType);
-            return _httpClient.PostAsync($"{_httpClient.BaseAddress}{requestUri}", content).Result;
+            return _httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, encoding, mediaType)).Result;
+        }
+
+        public T Post<T>(string requestUri, object body, Encoding encoding, string mediaType)
+        {
+            RefreshToken();
+            return Interpreter<T>(_httpClient.PostAsync(CreateRequestUri(_httpClient.BaseAddress, requestUri),
+                                       CreateStringContent(body, encoding, mediaType)).Result);
         }
         #endregion
 
